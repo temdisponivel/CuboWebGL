@@ -81,7 +81,7 @@ function linkProgram (vertexShader,fragmentShader)
  */
 function cubo(cores, tamanho)
 {
-	var posicaoInicial = [0, 0, 0];
+	var posicaoInicial = [-tamanho/2, -tamanho/2, -tamanho/2];
 
 	var pontos = 
 	[		
@@ -218,28 +218,33 @@ function controiCubao()
 	//FUNDO
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[1][1][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[1][1][2].model = mat4.translate([], matrizCubo[1][1][2].model, posicaoInicialCubo);
 	
 	//ESQUERDA
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
 	matrizCubo[0][1][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][1][1].model = mat4.translate([], matrizCubo[0][1][1].model, posicaoInicialCubo);
 	
 	//DIREITA
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
 	matrizCubo[2][1][1] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][1][1].model = mat4.translate([], matrizCubo[2][1][1].model, posicaoInicialCubo);
 	
 	//CIMA
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
 	matrizCubo[1][0][1] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[1][0][1].model = mat4.translate([], matrizCubo[1][0][1].model, posicaoInicialCubo);
 	
 	//BAIXO
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
 	matrizCubo[1][2][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[1][2][1].model = mat4.translate([], matrizCubo[1][2][1].model, posicaoInicialCubo);
 	
 	
 	//CONTROI OS 12 CUBOS DOS CANTOS DUPLOS
@@ -248,23 +253,27 @@ function controiCubao()
 	//ESQUERDA DA FRENTE
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	matrizCubo[0][1][0] = cubo([coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][1][0].model = mat4.translate([], matrizCubo[0][1][0].model, posicaoInicialCubo);
 	
 	
 	//DIREITA DA FRENTE
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	matrizCubo[2][1][0] = cubo([coresCubo[5], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][1][0].model = mat4.translate([], matrizCubo[2][1][0].model, posicaoInicialCubo);
 	
 	
 	//CIMA DA FRENTE
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
 	matrizCubo[1][0][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[1][0][0].model = mat4.translate([], matrizCubo[1][0][0].model, posicaoInicialCubo);
 	
 	
 	//BAIXO DA FRENTE
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	matrizCubo[1][2][0] = cubo([coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[1][2][0].model = mat4.translate([], matrizCubo[1][2][0].model, posicaoInicialCubo);
 	
 	posicaoInicialCubo = [0, 0, 0]; //LIMPA PONTOS
 	
@@ -272,12 +281,14 @@ function controiCubao()
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[0][1][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[0][1][2].model = mat4.translate([], matrizCubo[0][1][2].model, posicaoInicialCubo);
 	
 	
 	//DIREITA DA TRAS
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[2][1][2] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[2][1][2].model = mat4.translate([], matrizCubo[2][1][2].model, posicaoInicialCubo);
 	
 	
 	//CIMA DA TRAS
@@ -285,6 +296,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[1][0][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[1][0][2].model = mat4.translate([], matrizCubo[1][0][2].model, posicaoInicialCubo);
 	
 	
 	//BAIXO DA TRAS
@@ -292,6 +304,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[1][2][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[1][2][2].model = mat4.translate([], matrizCubo[1][2][2].model, posicaoInicialCubo);
 	
 	
 	//BAIXO DA ESQUERDA
@@ -299,6 +312,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
 	matrizCubo[0][2][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][2][1].model = mat4.translate([], matrizCubo[0][2][1].model, posicaoInicialCubo);
 	
 	
 	//CIMA DA ESQUERDA
@@ -306,6 +320,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
 	matrizCubo[0][0][1] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][0][1].model = mat4.translate([], matrizCubo[0][0][1].model, posicaoInicialCubo);
 	
 	
 	//BAIXO DA DIREITA
@@ -313,6 +328,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
 	matrizCubo[2][2][1] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][2][1].model = mat4.translate([], matrizCubo[2][2][1].model, posicaoInicialCubo);
 	
 	
 	//CIMA DA DIREITA
@@ -320,6 +336,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
 	matrizCubo[2][0][1] = cubo([coresCubo[4], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][0][1].model = mat4.translate([], matrizCubo[2][0][1].model, posicaoInicialCubo);
 	
 	//CONTRÓI OS 8 CUBOS COM CANTOS TRIPLHOS
 	
@@ -329,30 +346,35 @@ function controiCubao()
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	matrizCubo[0][0][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][0][0].model = mat4.translate([], matrizCubo[0][0][0].model, posicaoInicialCubo);
 	
 	
 	//DIREITA SUPERIOR DA FRENTE
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	matrizCubo[2][0][0] = cubo([coresCubo[4], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][0][0].model = mat4.translate([], matrizCubo[2][0][0].model, posicaoInicialCubo);
 	
 	
 	//ESQUERDA INFERIOR DA FRENTE
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	matrizCubo[0][2][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][2][0].model = mat4.translate([], matrizCubo[0][2][0].model, posicaoInicialCubo);
 	
 	
 	//DIREITA INFERIOR DA FRENTE
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	matrizCubo[2][2][0] = cubo([coresCubo[5], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][2][0].model = mat4.translate([], matrizCubo[2][2][0].model, posicaoInicialCubo);
 	
 	//ESQUERDA SUPERIOR DA TRAS
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[0][0][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[0][0][2].model = mat4.translate([], matrizCubo[0][0][2].model, posicaoInicialCubo);
 	
 	
 	//DIREITA SUPERIOR DA TRAS
@@ -360,6 +382,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[2][0][2] = cubo([coresCubo[4], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[2][0][2].model = mat4.translate([], matrizCubo[2][0][2].model, posicaoInicialCubo);
 	
 	
 	//ESQUERDA INFERIOR DA TRAS
@@ -367,6 +390,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[0][2][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[0][2][2].model = mat4.translate([], matrizCubo[0][2][2].model, posicaoInicialCubo);
 	
 	
 	//DIREITA INFERIOR DA TRAS
@@ -374,6 +398,7 @@ function controiCubao()
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
 	matrizCubo[2][2][2] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[2][2][2].model = mat4.translate([], matrizCubo[2][2][2].model, posicaoInicialCubo);
 }
 
 /**
@@ -571,7 +596,6 @@ function rotacionaLinha(linhaRotacionar, sentidoRotacao)
 	for (var i = 0; i < matrizRotacionar.length; i++)
 	{
 		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, (90 * Math.PI) / 180, [0, 1, 0]);
-		matrizRotacionar[i].model = mat4.translate([], matrizRotacionar[i].model, [-4, 0, 0]);
 	}
 	
 	matrizCubo[0][linhaRotacionar] = matrizRotacionar.slice(0, 3);
