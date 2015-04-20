@@ -77,11 +77,50 @@ function linkProgram (vertexShader,fragmentShader)
 }
 
 /**
+ *função que carrega  os shadders e o cubo.
+ */
+function main() 
+{
+	/* LOAD GL */
+	getGLContext();
+	
+	/* COMPILE AND LINK */
+	vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+	fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+	shaderProgram = linkProgram(vertexShader,fragmentShader);
+	gl.useProgram(shaderProgram);
+	
+	//Cria matriz identidade 4x4
+	model = mat4.create();
+	modelLocation = gl.getUniformLocation(shaderProgram, "model");
+	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(model));
+	
+	//cÃ¢mera  //pra onde olha  //onde Ã© para cima
+	view = mat4.lookAt([],[10, 10,-50],[0, 0, 0],[0,1,0]);
+	viewLocation = gl.getUniformLocation(shaderProgram,"view");
+	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
+	
+	//50: angulo de visao   //proporÃ§Ã£o da tela   //campo de visÃ£o - mais perto e mais longe
+	projection = mat4.perspective([], -50, canvas.width/canvas.height, 0.1, 100);
+	projectionLocation = gl.getUniformLocation(shaderProgram, "projection");
+	gl.uniformMatrix4fv(projectionLocation, false, new Float32Array(projection));
+	
+	face = 0; //face a mostra do cubo: 0 - frente 1 - direita 2 - tras 3 - esquerda 4 - cima 5 - baixo
+	
+	controiCubao();
+	
+	draw();
+	
+	window.addEventListener("click", click);
+	window.addEventListener("keypress", tecla);
+}
+
+/**
  *Função que cria um cubo na posição, com a cor e o tamanho passado. 
  */
 function cubo(cores, tamanho)
 {
-	var posicaoInicial = [-tamanho/2, -tamanho/2, -tamanho/2];
+	var posicaoInicial = [-tamanho/2, tamanho/2, -tamanho/2];
 
 	var pontos = 
 	[		
@@ -120,12 +159,12 @@ function cubo(cores, tamanho)
 	
 	var colors = 
 	[
-		cores[0], cores[0], cores[0], cores[0], cores[0], cores[0],
-		cores[1], cores[1], cores[1], cores[1], cores[1], cores[1],
-		cores[2], cores[2], cores[2], cores[2], cores[2], cores[2],
-		cores[3], cores[3], cores[3], cores[3], cores[3], cores[3],
-		cores[4], cores[4], cores[4], cores[4], cores[4], cores[4],
-		cores[5], cores[5], cores[5], cores[5], cores[5], cores[5]
+		cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], //cima
+		cores[1], cores[1], cores[1], cores[1], cores[1], cores[1], //tras
+		cores[2], cores[2], cores[2], cores[2], cores[2], cores[2], //frente
+		cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], //esquerda
+		cores[4], cores[4], cores[4], cores[4], cores[4], cores[4], //baixo
+		cores[5], cores[5], cores[5], cores[5], cores[5], cores[5] //direita
 	];
 	
 	return 	{
@@ -147,54 +186,16 @@ function flatten(nested){
 }
 
 /**
- *função que carrega  os shadders e o cubo.
- */
-function main() 
-{
-	/* LOAD GL */
-	getGLContext();
-	
-	/* COMPILE AND LINK */
-	vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
-	fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
-	shaderProgram = linkProgram(vertexShader,fragmentShader);
-	gl.useProgram(shaderProgram);
-	
-	//Cria matriz identidade 4x4
-	model = mat4.create();
-	modelLocation = gl.getUniformLocation(shaderProgram, "model");
-	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(model));
-	
-	//cÃ¢mera  //pra onde olha  //onde Ã© para cima
-	view = mat4.lookAt([],[10,10,-50],[1,0,0],[0,1,0]);
-	viewLocation = gl.getUniformLocation(shaderProgram,"view");
-	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
-	
-	//50: angulo de visao   //proporÃ§Ã£o da tela   //campo de visÃ£o - mais perto e mais longe
-	projection = mat4.perspective([], -50, canvas.width/canvas.height, 0.1, 100);
-	projectionLocation = gl.getUniformLocation(shaderProgram, "projection");
-	gl.uniformMatrix4fv(projectionLocation, false, new Float32Array(projection));
-	
-	face = 0; //face a mostra do cubo: 0 - frente 1 - direita 2 - tras 3 - esquerda 4 - cima 5 - baixo
-	
-	controiCubao();
-	
-	draw();
-	
-	window.addEventListener("click", click);
-	window.addEventListener("keypress", tecla);
-}
-
-/**
  *Controi os cubinhos e forma a matrizCubo. 
  */
 function controiCubao()
 {
 	var tamanhoCubo = 2; //TAMANHO DAS FACES DO CUBO
 	var tamanhoCubao = tamanhoCubo * 2;
-	var espacamento = 0.03;
-	var posicaoInicialCubo = [0, 0, 0]; //PONTO SUPERIOR ESQUERDO DO NOVO CUBO
+	var espacamento = 0.02;
+	var posicaoInicialCubo = [0.5, .5, 0]; //PONTO SUPERIOR ESQUERDO DO NOVO CUBO
 	var coresCubo = controiCoresCubo(); //SEIS CORES DO CUBIBNHO
+	var corCubinho = [coresCubo[4], coresCubo[1], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[3]];
 	faceMostra = 0;
 	data = new Array();
 	matrizCubo = [];
@@ -212,38 +213,38 @@ function controiCubao()
 	
 	//CONTROI OS SEIS CUBOS DO CENTRO
 	
-	//FRENTE
-	matrizCubo[1][1][0] = cubo([coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	//FRENTE - VERMELHO
+	matrizCubo[1][1][0] = cubo(corCubinho, tamanhoCubo);
 	
-	//FUNDO
+	//FUNDO - AZUL
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[1][1][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[1][1][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[1][1][2].model = mat4.translate([], matrizCubo[1][1][2].model, posicaoInicialCubo);
 	
-	//ESQUERDA
+	//ESQUERDA - VERDE
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	matrizCubo[0][1][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][1][1] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][1][1].model = mat4.translate([], matrizCubo[0][1][1].model, posicaoInicialCubo);
 	
-	//DIREITA
+	//DIREITA - ROXO
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	matrizCubo[2][1][1] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][1][1] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][1][1].model = mat4.translate([], matrizCubo[2][1][1].model, posicaoInicialCubo);
 	
-	//CIMA
+	//CIMA - AZUL CLARO
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	matrizCubo[1][0][1] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[1][0][1] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[1][0][1].model = mat4.translate([], matrizCubo[1][0][1].model, posicaoInicialCubo);
 	
-	//BAIXO
+	//BAIXO - PRETO
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	matrizCubo[1][2][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[1][2][1] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[1][2][1].model = mat4.translate([], matrizCubo[1][2][1].model, posicaoInicialCubo);
 	
 	
@@ -252,27 +253,27 @@ function controiCubao()
 	
 	//ESQUERDA DA FRENTE
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	matrizCubo[0][1][0] = cubo([coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][1][0] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][1][0].model = mat4.translate([], matrizCubo[0][1][0].model, posicaoInicialCubo);
 	
 	
 	//DIREITA DA FRENTE
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	matrizCubo[2][1][0] = cubo([coresCubo[5], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][1][0] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][1][0].model = mat4.translate([], matrizCubo[2][1][0].model, posicaoInicialCubo);
 	
 	
 	//CIMA DA FRENTE
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
-	matrizCubo[1][0][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[1][0][0] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[1][0][0].model = mat4.translate([], matrizCubo[1][0][0].model, posicaoInicialCubo);
 	
 	
 	//BAIXO DA FRENTE
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	matrizCubo[1][2][0] = cubo([coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[1][2][0] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[1][2][0].model = mat4.translate([], matrizCubo[1][2][0].model, posicaoInicialCubo);
 	
 	posicaoInicialCubo = [0, 0, 0]; //LIMPA PONTOS
@@ -280,14 +281,14 @@ function controiCubao()
 	//ESQUERDA DA TRAS
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[0][1][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[0][1][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][1][2].model = mat4.translate([], matrizCubo[0][1][2].model, posicaoInicialCubo);
 	
 	
 	//DIREITA DA TRAS
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[2][1][2] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[2][1][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][1][2].model = mat4.translate([], matrizCubo[2][1][2].model, posicaoInicialCubo);
 	
 	
@@ -295,7 +296,7 @@ function controiCubao()
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[1][0][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[1][0][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[1][0][2].model = mat4.translate([], matrizCubo[1][0][2].model, posicaoInicialCubo);
 	
 	
@@ -303,7 +304,7 @@ function controiCubao()
 	posicaoInicialCubo[0] = (espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[1][2][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[1][2][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[1][2][2].model = mat4.translate([], matrizCubo[1][2][2].model, posicaoInicialCubo);
 	
 	
@@ -311,7 +312,7 @@ function controiCubao()
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	matrizCubo[0][2][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][2][1] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][2][1].model = mat4.translate([], matrizCubo[0][2][1].model, posicaoInicialCubo);
 	
 	
@@ -319,7 +320,7 @@ function controiCubao()
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	matrizCubo[0][0][1] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][0][1] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][0][1].model = mat4.translate([], matrizCubo[0][0][1].model, posicaoInicialCubo);
 	
 	
@@ -327,7 +328,7 @@ function controiCubao()
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	matrizCubo[2][2][1] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][2][1] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][2][1].model = mat4.translate([], matrizCubo[2][2][1].model, posicaoInicialCubo);
 	
 	
@@ -335,7 +336,7 @@ function controiCubao()
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	matrizCubo[2][0][1] = cubo([coresCubo[4], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][0][1] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][0][1].model = mat4.translate([], matrizCubo[2][0][1].model, posicaoInicialCubo);
 	
 	//CONTRÓI OS 8 CUBOS COM CANTOS TRIPLHOS
@@ -345,35 +346,35 @@ function controiCubao()
 	//ESQUERDA SUPERIOR DA FRENTE
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
-	matrizCubo[0][0][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][0][0] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][0][0].model = mat4.translate([], matrizCubo[0][0][0].model, posicaoInicialCubo);
 	
 	
 	//DIREITA SUPERIOR DA FRENTE
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
-	matrizCubo[2][0][0] = cubo([coresCubo[4], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][0][0] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][0][0].model = mat4.translate([], matrizCubo[2][0][0].model, posicaoInicialCubo);
 	
 	
 	//ESQUERDA INFERIOR DA FRENTE
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	matrizCubo[0][2][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[0][2][0] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][2][0].model = mat4.translate([], matrizCubo[0][2][0].model, posicaoInicialCubo);
 	
 	
 	//DIREITA INFERIOR DA FRENTE
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	matrizCubo[2][2][0] = cubo([coresCubo[5], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	matrizCubo[2][2][0] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][2][0].model = mat4.translate([], matrizCubo[2][2][0].model, posicaoInicialCubo);
 	
 	//ESQUERDA SUPERIOR DA TRAS
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[0][0][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[0][0][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][0][2].model = mat4.translate([], matrizCubo[0][0][2].model, posicaoInicialCubo);
 	
 	
@@ -381,7 +382,7 @@ function controiCubao()
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[2][0][2] = cubo([coresCubo[4], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[2][0][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][0][2].model = mat4.translate([], matrizCubo[2][0][2].model, posicaoInicialCubo);
 	
 	
@@ -389,7 +390,7 @@ function controiCubao()
 	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[0][2][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[0][2][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[0][2][2].model = mat4.translate([], matrizCubo[0][2][2].model, posicaoInicialCubo);
 	
 	
@@ -397,8 +398,13 @@ function controiCubao()
 	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
 	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	matrizCubo[2][2][2] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	matrizCubo[2][2][2] = cubo(corCubinho, tamanhoCubo);
 	matrizCubo[2][2][2].model = mat4.translate([], matrizCubo[2][2][2].model, posicaoInicialCubo);
+
+	cubao =	{
+		"matriz": matrizCubo,
+		"model": mat4.create(),
+	}
 }
 
 /**
@@ -417,7 +423,7 @@ function controiCoresCubo()
 		//VERDE
 		[0, 1, 0, 1],
 		
-		//AMARELO
+		//ROXO
 		[1, 0, 1, 1],
 		
 		//AZUL ESTRANHO
@@ -539,12 +545,12 @@ function click(e)
 	}
 	
 	//se esta acima
-	if (e.clientY <= (canvas.width/2))
+	if (e.clientY <= (canvas.height/2))
 	{
 		linha = 0;
 	}
 	//se esta a no centro
-	else if (e.clientY <= (canvas.width/4)*3)
+	else if (e.clientY <= (canvas.height/4)*3)
 	{
 		linha = 1;
 	}
@@ -591,10 +597,15 @@ function rotacionaLinha(linhaRotacionar, sentidoRotacao)
 		matrizRotacionar = matrizRotacionar.concat(matrizCubo[i][linhaRotacionar]); //pega a matriz de 3 posicoes de todas as colunas na linha
 	
 	//pega a matriz transposta
-	matrizRotacionar = mat3.transpose([], matrizRotacionar);
+	for (var i = 0; i < 4; i++)
+		matrizRotacionar = mat3.transpose([], matrizRotacionar);
 	
 	for (var i = 0; i < matrizRotacionar.length; i++)
 	{
+		//se é o cubo central, que não existe, passa para o proximo
+		if (linhaRotacionar == 1 && i == 4)
+			continue;
+
 		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, (90 * Math.PI) / 180, [0, 1, 0]);
 	}
 	
@@ -615,12 +626,16 @@ function rotacionaColuna(colunaRotacionar, sentidoRotacao)
 		matrizRotacionar = matrizRotacionar.concat(matrizCubo[colunaRotacionar][i]); //pega a matriz de 3 posicoes de todas as colunas na linha
 	
 	//pega a matriz transposta
-	matrizRotacionar = mat3.transpose([], matrizRotacionar);
+	for (var i = 0; i < 4; i++)
+		matrizRotacionar = mat3.transpose([], matrizRotacionar);
 	
 	for (var i = 0; i < matrizRotacionar.length; i++)
 	{
+		//se é o cubo central, que não existe, passa para o proximo
+		if (colunaRotacionar == 1 && i == 4)
+			continue;
+
 		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, (90 * Math.PI) / 180, [1, 0, 0]);
-		matrizRotacionar[i].model = mat4.translate([], matrizRotacionar[i].model, [-4, 0, 0]);
 	}
 	
 	matrizCubo[colunaRotacionar][0] = matrizRotacionar.slice(0, 3);
