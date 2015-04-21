@@ -398,16 +398,16 @@ function rotacoes()
 	if (botao == 0)
 	{
 		if (coluna <= 1)
-			rotacionaLinha(linha, -1); //baixo
+			rotacionaLinha(linha, -1); //esquerda
 		else
-			rotacionaLinha(linha, 1); //cima
+			rotacionaLinha(linha, 1); //direita
 	}
 	else if (botao == 1)
 	{
 		if (linha <= 1)
-			rotacionaColuna(coluna, 1); //esquerda
+			rotacionaColuna(coluna, -1); //baixo
 		else
-			rotacionaColuna(coluna, -1); //direita
+			rotacionaColuna(coluna, 1); //cima
 	}
 }
 
@@ -435,16 +435,14 @@ function rotacionaLinha(linhaRotacionar, sentidoRotacao)
 		if (linhaRotacionar == 1 && i == 4)
 			continue;
 
-		
+		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoLinha);//matrizRotacionar[i].eixoRotacaoLinha);
+
 		//se o eixo de rotação era o X para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
-		if (matrizRotacionar[i].eixoRotacaoColuna == [-1, 0, 0])
+		if (matrizRotacionar[i].eixoRotacaoColuna[0] == 1)
 			matrizRotacionar[i].eixoRotacaoColuna = [0, 0, -1];
 		//senao, volta pro padrão
 		else
 			matrizRotacionar[i].eixoRotacaoColuna = [1, 0, 0];
-		
-
-		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoLinha);
 	}
 	
 	cubo.matriz[0][linhaRotacionar] = matrizRotacionar.slice(0, 3);
@@ -472,17 +470,15 @@ function rotacionaColuna(colunaRotacionar, sentidoRotacao)
 		//se é o cubo central, que não existe, passa para o proximo
 		if (colunaRotacionar == 1 && i == 4)
 			continue;
+		
+		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoColuna);//matrizRotacionar[i].eixoRotacaoColuna);
 
-		/*
 		//se o eixo de rotação era o Y para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
-		if (matrizRotacionar[i].eixoRotacaoLinha == [0, 1, 0])
-			matrizRotacionar[i].eixoRotacaoColuna = [0, 0, 1];
+		if (matrizRotacionar[i].eixoRotacaoLinha[1] == 1)
+			matrizRotacionar[i].eixoRotacaoLinha = [0, 0, -1];
 		//senao, volta pro padrão
 		else
-			matrizRotacionar[i].eixoRotacaoColuna = [0, 1, 0];
-		*/
-
-		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoColuna);
+			matrizRotacionar[i].eixoRotacaoLinha = [0, 1, 0];
 	}
 	
 	cubo.matriz[colunaRotacionar][0] = matrizRotacionar.slice(0, 3);
