@@ -96,7 +96,6 @@ function main()
 	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(model));
 	
 	//cÃ¢mera  //pra onde olha  //onde Ã© para cima
-	view = mat4.lookAt([],[10, 10,-50],[1, 3, 0],[0,1,0]);
 	viewLocation = gl.getUniformLocation(shaderProgram,"view");
 	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
 	
@@ -120,7 +119,6 @@ function main()
  */
 function controiCubinho(cores, tamanho)
 {
-	var posicaoInicial = [(tamanho*-.5), tamanho*1.5, (tamanho*-.5)];
 	//var posicaoInicial = [0, 0, 0];
 
 	var pontos = 
@@ -410,9 +408,6 @@ function rotacoes()
 			rotacionaColuna(coluna, 1); //cima
 	}
 }
-
-eixosRotacaoLinha = [[0, 1, 0], [], [], []];
-eixosRotacaoColuna = [[], [], [], []];
 
 /**
  *Funcao que rotacioona a matriz formada pelos cubinhos da linha parametrizada. 
