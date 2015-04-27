@@ -77,51 +77,11 @@ function linkProgram (vertexShader,fragmentShader)
 }
 
 /**
- *função que carrega  os shadders e o cubo.
- */
-function main() 
-{
-	/* LOAD GL */
-	getGLContext();
-	
-	/* COMPILE AND LINK */
-	vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
-	fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
-	shaderProgram = linkProgram(vertexShader,fragmentShader);
-	gl.useProgram(shaderProgram);
-	
-	//Cria matriz identidade 4x4
-	model = mat4.create();
-	modelLocation = gl.getUniformLocation(shaderProgram, "model");
-	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(model));
-	
-	//cÃ¢mera  //pra onde olha  //onde Ã© para cima
-	view = mat4.lookAt([],[10, 10,-50],[-3, 1.5, 0],[0,1,0]);
-	viewLocation = gl.getUniformLocation(shaderProgram,"view");
-	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
-	
-	//50: angulo de visao   //proporÃ§Ã£o da tela   //campo de visÃ£o - mais perto e mais longe
-	projection = mat4.perspective([], -50, canvas.width/canvas.height, 0.1, 100);
-	projectionLocation = gl.getUniformLocation(shaderProgram, "projection");
-	gl.uniformMatrix4fv(projectionLocation, false, new Float32Array(projection));
-	
-	face = 0; //face a mostra do cubo: 0 - frente 1 - direita 2 - tras 3 - esquerda 4 - cima 5 - baixo
-	
-	controiCubao();
-	
-	draw();
-	
-	window.addEventListener("click", click);
-	window.addEventListener("keypress", tecla);
-}
-
-/**
  *Função que cria um cubo na posição, com a cor e o tamanho passado. 
  */
-function controiCubinho(cores, tamanho)
+function cubo(cores, tamanho)
 {
-	var posicaoInicial = [-tamanho/2, tamanho/2, -tamanho/2];
-	//var posicaoInicial = [0, 0, 0];
+	var posicaoInicial = [0, 0, 0];
 
 	var pontos = 
 	[		
@@ -160,21 +120,18 @@ function controiCubinho(cores, tamanho)
 	
 	var colors = 
 	[
-		cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], //cima
-		cores[1], cores[1], cores[1], cores[1], cores[1], cores[1], //tras
-		cores[2], cores[2], cores[2], cores[2], cores[2], cores[2], //frente
-		cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], //esquerda
-		cores[4], cores[4], cores[4], cores[4], cores[4], cores[4], //baixo
-		cores[5], cores[5], cores[5], cores[5], cores[5], cores[5] //direita
+		cores[0], cores[0], cores[0], cores[0], cores[0], cores[0],
+		cores[1], cores[1], cores[1], cores[1], cores[1], cores[1],
+		cores[2], cores[2], cores[2], cores[2], cores[2], cores[2],
+		cores[3], cores[3], cores[3], cores[3], cores[3], cores[3],
+		cores[4], cores[4], cores[4], cores[4], cores[4], cores[4],
+		cores[5], cores[5], cores[5], cores[5], cores[5], cores[5]
 	];
 	
 	return 	{
 		"points": new Float32Array(flatten(faces)),
 		"colors": new Float32Array(flatten(colors)),
 		"model": mat4.create(),
-		"eixoRotacaoLinha": [0, 1, 0],
-		"eixoRotacaoColuna": [1, 0, 0],
-		"alterado": false,
 	};
 }
 
@@ -190,48 +147,233 @@ function flatten(nested){
 }
 
 /**
+ *função que carrega  os shadders e o cubo.
+ */
+function main() 
+{
+	/* LOAD GL */
+	getGLContext();
+	
+	/* COMPILE AND LINK */
+	vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+	fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+	shaderProgram = linkProgram(vertexShader,fragmentShader);
+	gl.useProgram(shaderProgram);
+	
+	//Cria matriz identidade 4x4
+	model = mat4.create();
+	modelLocation = gl.getUniformLocation(shaderProgram, "model");
+	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(model));
+	
+	//cÃ¢mera  //pra onde olha  //onde Ã© para cima
+	view = mat4.lookAt([],[10,10,-50],[1,0,0],[0,1,0]);
+	viewLocation = gl.getUniformLocation(shaderProgram,"view");
+	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
+	
+	//50: angulo de visao   //proporÃ§Ã£o da tela   //campo de visÃ£o - mais perto e mais longe
+	projection = mat4.perspective([], -50, canvas.width/canvas.height, 0.1, 100);
+	projectionLocation = gl.getUniformLocation(shaderProgram, "projection");
+	gl.uniformMatrix4fv(projectionLocation, false, new Float32Array(projection));
+	
+	face = 0; //face a mostra do cubo: 0 - frente 1 - direita 2 - tras 3 - esquerda 4 - cima 5 - baixo
+	
+	controiCubao();
+	
+	draw();
+	
+	window.addEventListener("click", click);
+	window.addEventListener("keypress", tecla);
+}
+
+/**
  *Controi os cubinhos e forma a matrizCubo. 
  */
 function controiCubao()
 {
 	var tamanhoCubo = 2; //TAMANHO DAS FACES DO CUBO
 	var tamanhoCubao = tamanhoCubo * 2;
-	var espacamento = 0.02;
-	var posicaoInicialCubo = [0.5, .5, 0]; //PONTO SUPERIOR ESQUERDO DO NOVO CUBO
+	var espacamento = 0.03;
+	var posicaoInicialCubo = [0, 0, 0]; //PONTO SUPERIOR ESQUERDO DO NOVO CUBO
 	var coresCubo = controiCoresCubo(); //SEIS CORES DO CUBIBNHO
-	var corCubinho = [coresCubo[4], coresCubo[1], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[3]];
 	faceMostra = 0;
 	data = new Array();
-	
-	cubo = {
-		"matriz": [],
-	};
-
-	modelLinha = mat4.create();
+	matrizCubo = [];
 	
 	//controi matriz de 3 dimencoes para o cubo
 	for(var i=0; i<3; i++) 
 	{
-	    cubo.matriz[i] = [];
+	    matrizCubo[i] = [];
     
         for(var j=0; j<3; j++) 
 	    {
-        	cubo.matriz[i][j] = [];
+        	matrizCubo[i][j] = [];
     	}
 	}
 	
-	//Cria o cubo
-	for (var linhas = 0; linhas < 3; linhas++)
-	{
-		for (var colunas = 0; colunas < 3; colunas++)
-		{
-			for (var profundidade = 0; profundidade < 3; profundidade++)
-			{
-				cubo.matriz[colunas][linhas][profundidade] = controiCubinho(coresCubo, tamanhoCubo);
-				cubo.matriz[colunas][linhas][profundidade].model = mat4.translate([], modelLinha, [-tamanhoCubo * colunas, tamanhoCubo * linhas, -tamanhoCubo * profundidade]);
-			}
-		}
-	}
+	//CONTROI OS SEIS CUBOS DO CENTRO
+	
+	//FRENTE
+	matrizCubo[1][1][0] = cubo([coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	//FUNDO
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[1][1][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	
+	//ESQUERDA
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
+	matrizCubo[0][1][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	//DIREITA
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
+	matrizCubo[2][1][1] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	//CIMA
+	posicaoInicialCubo[0] = (espacamento);
+	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
+	matrizCubo[1][0][1] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	//BAIXO
+	posicaoInicialCubo[0] = (espacamento);
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
+	matrizCubo[1][2][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//CONTROI OS 12 CUBOS DOS CANTOS DUPLOS
+	posicaoInicialCubo = [0, 0, 0]; //LIMPA PONTOS
+	
+	//ESQUERDA DA FRENTE
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	matrizCubo[0][1][0] = cubo([coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//DIREITA DA FRENTE
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	matrizCubo[2][1][0] = cubo([coresCubo[5], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//CIMA DA FRENTE
+	posicaoInicialCubo[0] = (espacamento);
+	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
+	matrizCubo[1][0][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//BAIXO DA FRENTE
+	posicaoInicialCubo[0] = (espacamento);
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	matrizCubo[1][2][0] = cubo([coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	posicaoInicialCubo = [0, 0, 0]; //LIMPA PONTOS
+	
+	//ESQUERDA DA TRAS
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[0][1][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	
+	
+	//DIREITA DA TRAS
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[2][1][2] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	
+	
+	//CIMA DA TRAS
+	posicaoInicialCubo[0] = (espacamento);
+	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[1][0][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	
+	
+	//BAIXO DA TRAS
+	posicaoInicialCubo[0] = (espacamento);
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[1][2][2] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	
+	
+	//BAIXO DA ESQUERDA
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
+	matrizCubo[0][2][1] = cubo([coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//CIMA DA ESQUERDA
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
+	matrizCubo[0][0][1] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//BAIXO DA DIREITA
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
+	matrizCubo[2][2][1] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//CIMA DA DIREITA
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
+	matrizCubo[2][0][1] = cubo([coresCubo[4], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	//CONTRÓI OS 8 CUBOS COM CANTOS TRIPLHOS
+	
+	posicaoInicialCubo = [0, 0, 0]; //LIMPA PONTOS
+	
+	//ESQUERDA SUPERIOR DA FRENTE
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
+	matrizCubo[0][0][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//DIREITA SUPERIOR DA FRENTE
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
+	matrizCubo[2][0][0] = cubo([coresCubo[4], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//ESQUERDA INFERIOR DA FRENTE
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	matrizCubo[0][2][0] = cubo([coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	
+	//DIREITA INFERIOR DA FRENTE
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	matrizCubo[2][2][0] = cubo([coresCubo[5], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo);
+	
+	//ESQUERDA SUPERIOR DA TRAS
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[0][0][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	
+	
+	//DIREITA SUPERIOR DA TRAS
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[2][0][2] = cubo([coresCubo[4], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	
+	
+	//ESQUERDA INFERIOR DA TRAS
+	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[0][2][2] = cubo([coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo);
+	
+	
+	//DIREITA INFERIOR DA TRAS
+	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
+	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
+	matrizCubo[2][2][2] = cubo([coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo);
 }
 
 /**
@@ -250,7 +392,7 @@ function controiCoresCubo()
 		//VERDE
 		[0, 1, 0, 1],
 		
-		//ROXO
+		//AMARELO
 		[1, 0, 1, 1],
 		
 		//AZUL ESTRANHO
@@ -372,19 +514,19 @@ function click(e)
 	}
 	
 	//se esta acima
-	if (e.clientY <= (canvas.height/2))
+	if (e.clientY <= (canvas.width/2))
 	{
-		linha = 2;
+		linha = 0;
 	}
 	//se esta a no centro
-	else if (e.clientY <= (canvas.height/4)*3)
+	else if (e.clientY <= (canvas.width/4)*3)
 	{
 		linha = 1;
 	}
 	//se esta abaixo
 	else if (e.clientY <= (canvas.height))
 	{
-		linha = 0;
+		linha = 2;
 	}
 	
 	rotacoes();
@@ -399,16 +541,16 @@ function rotacoes()
 	if (botao == 0)
 	{
 		if (coluna <= 1)
-			rotacionaLinha(linha, -1); //esquerda
+			rotacionaLinha(linha, -1);
 		else
-			rotacionaLinha(linha, 1); //direita
+			rotacionaLinha(linha, 1);
 	}
 	else if (botao == 1)
 	{
 		if (linha <= 1)
-			rotacionaColuna(coluna, -1); //baixo
+			rotacionaColuna(coluna, -1);
 		else
-			rotacionaColuna(coluna, 1); //cima
+			rotacionaColuna(coluna, 1);
 	}
 }
 
@@ -421,48 +563,20 @@ function rotacionaLinha(linhaRotacionar, sentidoRotacao)
 	
 	//controi a matriz com a linha que vamos transpor
 	for (var i = 0; i < 3; i++)
-		matrizRotacionar = matrizRotacionar.concat(cubo.matriz[i][linhaRotacionar]); //pega a matriz de 3 posicoes de todas as colunas na linha
+		matrizRotacionar = matrizRotacionar.concat(matrizCubo[i][linhaRotacionar]); //pega a matriz de 3 posicoes de todas as colunas na linha
 	
 	//pega a matriz transposta
-	for (var i = 0; i < 4; i++)
-		matrizRotacionar = mat3.transpose([], matrizRotacionar);
+	matrizRotacionar = mat3.transpose([], matrizRotacionar);
 	
-	for (var i = 0, j = matrizRotacionar.length -  1; i < matrizRotacionar.length; i++, j--)
+	for (var i = 0; i < matrizRotacionar.length; i++)
 	{
-		//se é o cubo central, que não existe, passa para o proximo
-		if (linhaRotacionar == 1 && i == 4)
-			continue;
-
-		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((45 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoLinha);//matrizRotacionar[i].eixoRotacaoLinha);
-		var temp = matrizRotacionar[j].model;
-		matrizRotacionar[j].model = matrizRotacionar[i].model;
-		matrizRotacionar[i].model = temp;
-
-		if (matrizRotacionar[i].alterado)
-		{
-			matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((45 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoColuna);//matrizRotacionar[i].eixoRotacaoLinha);
-		}
-
-		//se o eixo de rotação era o X para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
-		if (matrizRotacionar[i].eixoRotacaoColuna[0] == 1)
-			matrizRotacionar[i].eixoRotacaoColuna = [0, 0, 1];
-		//senao, volta pro padrão
-		else
-			matrizRotacionar[i].eixoRotacaoColuna = [1, 0, 0];
+		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, (90 * Math.PI) / 180, [0, 1, 0]);
+		matrizRotacionar[i].model = mat4.translate([], matrizRotacionar[i].model, [-4, 0, 0]);
 	}
 	
-	cubo.matriz[0][linhaRotacionar] = matrizRotacionar.slice(0, 3);
-	cubo.matriz[1][linhaRotacionar] = matrizRotacionar.slice(3, 6);
-	cubo.matriz[2][linhaRotacionar] = matrizRotacionar.slice(6, 9);
-
-/*
-	for (var i = 0, j = 2; i < cubo.matriz[linhaRotacionar][linhaRotacionar].length; i++, j--)
-	{
-		var temp = cubo.matriz[2][linhaRotacionar][i].model;
-		cubo.matriz[2][linhaRotacionar][i].model = cubo.matriz[2][linhaRotacionar][j].model;
-		cubo.matriz[2][linhaRotacionar][j].model = temp;
-	}
-	*/
+	matrizCubo[0][linhaRotacionar] = matrizRotacionar.slice(0, 3);
+	matrizCubo[1][linhaRotacionar] = matrizRotacionar.slice(3, 6);
+	matrizCubo[2][linhaRotacionar] = matrizRotacionar.slice(6, 9);
 }
 
 /**
@@ -474,36 +588,20 @@ function rotacionaColuna(colunaRotacionar, sentidoRotacao)
 	
 	//controi a matriz com a linha que vamos transpor
 	for (var i = 0; i < 3; i++)
-		matrizRotacionar = matrizRotacionar.concat(cubo.matriz[colunaRotacionar][i]); //pega a matriz de 3 posicoes de todas as colunas na linha
+		matrizRotacionar = matrizRotacionar.concat(matrizCubo[colunaRotacionar][i]); //pega a matriz de 3 posicoes de todas as colunas na linha
 	
 	//pega a matriz transposta
-	for (var i = 0; i < 4; i++)
-		matrizRotacionar = mat3.transpose([], matrizRotacionar);
+	matrizRotacionar = mat3.transpose([], matrizRotacionar);
 	
 	for (var i = 0; i < matrizRotacionar.length; i++)
 	{
-		//se é o cubo central, que não existe, passa para o proximo
-		if (colunaRotacionar == 1 && i == 4)
-			continue;
-		
-		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoColuna);//matrizRotacionar[i].eixoRotacaoColuna);
-
-		if (matrizRotacionar[i].alterado)
-		{
-			matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoLinha);//matrizRotacionar[i].eixoRotacaoLinha);
-		}
-
-		//se o eixo de rotação era o Y para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
-		if (matrizRotacionar[i].eixoRotacaoLinha[1] == 1)
-			matrizRotacionar[i].eixoRotacaoLinha = [0, 0, -1];
-		//senao, volta pro padrão
-		else
-			matrizRotacionar[i].eixoRotacaoLinha = [0, 1, 0];
+		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, (90 * Math.PI) / 180, [1, 0, 0]);
+		matrizRotacionar[i].model = mat4.translate([], matrizRotacionar[i].model, [-4, 0, 0]);
 	}
 	
-	cubo.matriz[colunaRotacionar][0] = matrizRotacionar.slice(0, 3);
-	cubo.matriz[colunaRotacionar][1] = matrizRotacionar.slice(3, 6);
-	cubo.matriz[colunaRotacionar][2] = matrizRotacionar.slice(6, 9);
+	matrizCubo[colunaRotacionar][0] = matrizRotacionar.slice(0, 3);
+	matrizCubo[colunaRotacionar][1] = matrizRotacionar.slice(3, 6);
+	matrizCubo[colunaRotacionar][2] = matrizRotacionar.slice(6, 9);
 }
 
 /**
@@ -515,33 +613,33 @@ function draw()
 		camera = [10, 10, -20];
 		
 	//para cada cubo
-	for (var x = 0; x < cubo.matriz.length; x++)
+	for (var x = 0; x < matrizCubo.length; x++)
 	{
-		for (var y = 0; y < cubo.matriz[x].length; y++)
+		for (var y = 0; y < matrizCubo[x].length; y++)
 		{
-			for (var z = 0; z < cubo.matriz[x][y].length; z++)
+			for (var z = 0; z < matrizCubo[x][y].length; z++)
 			{
 				if (z == 1 && x == 1 && y == 1)
 					continue;
 				
-				gl.uniformMatrix4fv(modelLocation, false, new Float32Array(cubo.matriz[x][y][z].model));
+				gl.uniformMatrix4fv(modelLocation, false, new Float32Array(matrizCubo[x][y][z].model));
 			
 				//ATRIBUTOS DOS SHADERS
 				positionAttr = gl.getAttribLocation(shaderProgram, "position");
 				positionBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, cubo.matriz[x][y][z].points, gl.STATIC_DRAW);
+				gl.bufferData(gl.ARRAY_BUFFER, matrizCubo[x][y][z].points, gl.STATIC_DRAW);
 				gl.enableVertexAttribArray(positionAttr);
 				gl.vertexAttribPointer(positionAttr, 3, gl.FLOAT, false, 0, 0);
 				
 				colorAttr = gl.getAttribLocation(shaderProgram, "color");
 				colorBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, cubo.matriz[x][y][z].colors, gl.STATIC_DRAW);
+				gl.bufferData(gl.ARRAY_BUFFER, matrizCubo[x][y][z].colors, gl.STATIC_DRAW);
 				gl.enableVertexAttribArray(colorAttr);
 				gl.vertexAttribPointer(colorAttr, 4, gl.FLOAT, false, 0, 0);
 						
-				gl.drawArrays(gl.TRIANGLES, 0, cubo.matriz[x][y][z].points.length/3);
+				gl.drawArrays(gl.TRIANGLES, 0, matrizCubo[x][y][z].points.length/3);
 			}
 		}
 	}
