@@ -96,6 +96,7 @@ function main()
 	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(model));
 	
 	//cÃ¢mera  //pra onde olha  //onde Ã© para cima
+	view = mat4.lookAt([],[10, 10,-50],[-3, 1.5, 0],[0,1,0]);
 	viewLocation = gl.getUniformLocation(shaderProgram,"view");
 	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
 	
@@ -119,6 +120,7 @@ function main()
  */
 function controiCubinho(cores, tamanho)
 {
+	var posicaoInicial = [-tamanho/2, tamanho/2, -tamanho/2];
 	//var posicaoInicial = [0, 0, 0];
 
 	var pontos = 
@@ -172,6 +174,7 @@ function controiCubinho(cores, tamanho)
 		"model": mat4.create(),
 		"eixoRotacaoLinha": [0, 1, 0],
 		"eixoRotacaoColuna": [1, 0, 0],
+		"alterado": false,
 	};
 }
 
@@ -424,17 +427,25 @@ function rotacionaLinha(linhaRotacionar, sentidoRotacao)
 	for (var i = 0; i < 4; i++)
 		matrizRotacionar = mat3.transpose([], matrizRotacionar);
 	
-	for (var i = 0; i < matrizRotacionar.length; i++)
+	for (var i = 0, j = matrizRotacionar.length -  1; i < matrizRotacionar.length; i++, j--)
 	{
 		//se é o cubo central, que não existe, passa para o proximo
 		if (linhaRotacionar == 1 && i == 4)
 			continue;
 
-		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoLinha);//matrizRotacionar[i].eixoRotacaoLinha);
+		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((45 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoLinha);//matrizRotacionar[i].eixoRotacaoLinha);
+		var temp = matrizRotacionar[j].model;
+		matrizRotacionar[j].model = matrizRotacionar[i].model;
+		matrizRotacionar[i].model = temp;
+
+		if (matrizRotacionar[i].alterado)
+		{
+			matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((45 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoColuna);//matrizRotacionar[i].eixoRotacaoLinha);
+		}
 
 		//se o eixo de rotação era o X para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
 		if (matrizRotacionar[i].eixoRotacaoColuna[0] == 1)
-			matrizRotacionar[i].eixoRotacaoColuna = [0, 0, -1];
+			matrizRotacionar[i].eixoRotacaoColuna = [0, 0, 1];
 		//senao, volta pro padrão
 		else
 			matrizRotacionar[i].eixoRotacaoColuna = [1, 0, 0];
@@ -443,6 +454,15 @@ function rotacionaLinha(linhaRotacionar, sentidoRotacao)
 	cubo.matriz[0][linhaRotacionar] = matrizRotacionar.slice(0, 3);
 	cubo.matriz[1][linhaRotacionar] = matrizRotacionar.slice(3, 6);
 	cubo.matriz[2][linhaRotacionar] = matrizRotacionar.slice(6, 9);
+
+/*
+	for (var i = 0, j = 2; i < cubo.matriz[linhaRotacionar][linhaRotacionar].length; i++, j--)
+	{
+		var temp = cubo.matriz[2][linhaRotacionar][i].model;
+		cubo.matriz[2][linhaRotacionar][i].model = cubo.matriz[2][linhaRotacionar][j].model;
+		cubo.matriz[2][linhaRotacionar][j].model = temp;
+	}
+	*/
 }
 
 /**
@@ -467,6 +487,11 @@ function rotacionaColuna(colunaRotacionar, sentidoRotacao)
 			continue;
 		
 		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoColuna);//matrizRotacionar[i].eixoRotacaoColuna);
+
+		if (matrizRotacionar[i].alterado)
+		{
+			matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoLinha);//matrizRotacionar[i].eixoRotacaoLinha);
+		}
 
 		//se o eixo de rotação era o Y para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
 		if (matrizRotacionar[i].eixoRotacaoLinha[1] == 1)
