@@ -253,7 +253,7 @@ function controiCena(quantidade)
 	//TERRA
 	tamanho = 4;
 	raio += 4;
-	velocidade = 4;
+	velocidade = 3.5;
 	cubos[6] = controiCubao([cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
 	tamanho = 3;
 	cubos[7] = controiCubao([cores[VERDE], cores[VERDE], cores[MARROM], cores[VERDE_BOSTA], cores[MARROM], cores[VERDE], cores[VERDE_BOSTA]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
@@ -268,7 +268,7 @@ function controiCena(quantidade)
 	//MARTE
 	tamanho = 4;
 	raio += 4;
-	velocidade = 2;
+	velocidade = 1.7;
 	cubos[10] = controiCubao([cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
 	tamanho = 3;
 	cubos[11] = controiCubao([cores[VINHO], cores[VINHO], cores[VINHO], cores[VINHO], cores[VINHO], cores[VINHO], cores[VINHO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
@@ -286,7 +286,7 @@ function controiCena(quantidade)
 	//SATURNO
 	raio += 5;
 	tamanho = 4;
-	velocidade = 2;
+	velocidade = 1.3;
 	cubos[14] = controiCubao([cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
 	tamanho = 1;
 	
