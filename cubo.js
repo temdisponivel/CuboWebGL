@@ -6,7 +6,7 @@ var	vertexShaderSource,
 	canvas,
 	gl,
 	teclas = [],
-	data;
+	cubos = [];
 
 //Atributos para o vertex
 var positionBuffer,
@@ -76,8 +76,58 @@ function linkProgram (vertexShader,fragmentShader)
 	return program;
 }
 
-function cubo(posicaoInicial, cores, tamanho, velocidade)
-{ 
+function flatten(nested){
+	var flat = [];
+	
+	for (var i = 0; i < nested.length; i++)
+	{
+		flat = flat.concat(nested[i]);
+	}
+	
+	return flat;
+}
+
+function main() 
+{
+	/* LOAD GL */
+	getGLContext();
+	
+	/* COMPILE AND LINK */
+	vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+	fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+	shaderProgram = linkProgram(vertexShader,fragmentShader);
+	gl.useProgram(shaderProgram);
+	
+	pressionado = false;
+	
+	//Cria matriz identidade 4x4
+	model = mat4.create();
+	modelLocation = gl.getUniformLocation(shaderProgram, "model");
+	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(model));
+	
+	//cÃ¢mera  //pra onde olha  //onde Ã© para cima
+	view = mat4.lookAt([],[10,10,-50],[0,0,0],[0,1,0]);
+	viewLocation = gl.getUniformLocation(shaderProgram,"view");
+	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
+	
+	//50: angulo de visao   //proporÃ§Ã£o da tela   //campo de visÃ£o - mais perto e mais longe
+	projection = mat4.perspective([], -50, canvas.width/canvas.height, 0.1, 100);
+	projectionLocation = gl.getUniformLocation(shaderProgram, "projection");
+	gl.uniformMatrix4fv(projectionLocation, false, new Float32Array(projection));
+	
+	controiCena(9);
+	
+	gl.clearColor(0, 0, 0, 1);
+
+	draw();
+	
+	window.addEventListener("keydown", teclaPresionada)
+	window.addEventListener("keyup", teclaSolta)
+}
+
+function controiCubinho(cores, tamanho, posicaoInicial, velocidade)
+{
+
 	var pontos = 
 	[		
 		[posicaoInicial[0], posicaoInicial[1], posicaoInicial[2]], //superior esquerdo
@@ -131,228 +181,74 @@ function cubo(posicaoInicial, cores, tamanho, velocidade)
 	};
 }
 
-function flatten(nested){
-	var flat = [];
+/**
+ *Controi os cubinhos e forma a matrizCubo. 
+ */
+function controiCubao(coresCubo, velocidade, tamanho, posicao, quantidade)
+{
+	var tamanhoCubo = tamanho; //TAMANHO DAS FACES DO CUBO
+	var posicaoInicialCubo = posicao; //PONTO SUPERIOR ESQUERDO DO NOVO CUBO
+	var espacamento = tamanho/100 * 40;
 	
-	for (var i = 0; i < nested.length; i++)
+	cubo = {
+		"matriz": [],
+	};
+	
+	//controi matriz de 3 dimencoes para o cubo
+	for(var i=0; i<quantidade; i++) 
 	{
-		flat = flat.concat(nested[i]);
+	    cubo.matriz[i] = [];
+    
+        for(var j=0; j<quantidade; j++) 
+	    {
+        	cubo.matriz[i][j] = [];
+    	}
 	}
 	
-	return flat;
+	for (var linhas = 0; linhas < quantidade; linhas++)
+	{
+		for (var colunas = 0; colunas < quantidade; colunas++)
+		{
+			for (var profundidade = 0; profundidade < quantidade; profundidade++)
+			{
+				cubo.matriz[colunas][linhas][profundidade] = controiCubinho(coresCubo, tamanhoCubo-espacamento, [posicaoInicialCubo[0]-tamanhoCubo * colunas, posicaoInicialCubo[1]+tamanhoCubo * linhas, posicaoInicialCubo[2]-tamanhoCubo * profundidade], velocidade);
+			}
+		}
+	}
+
+	return cubo;
 }
 
-function main() 
+function controiCena(quantidade)
 {
-	/* LOAD GL */
-	getGLContext();
-	
-	/* COMPILE AND LINK */
-	vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
-	fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
-	shaderProgram = linkProgram(vertexShader,fragmentShader);
-	gl.useProgram(shaderProgram);
-	
-	pressionado = false;
-	
-	//Cria matriz identidade 4x4
-	model = mat4.create();
-	modelLocation = gl.getUniformLocation(shaderProgram, "model");
-	gl.uniformMatrix4fv(modelLocation, false, new Float32Array(model));
-	
-	//cÃ¢mera  //pra onde olha  //onde Ã© para cima
-	view = mat4.lookAt([],[10,10,-50],[0,0,0],[0,1,0]);
-	viewLocation = gl.getUniformLocation(shaderProgram,"view");
-	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
-	
-	//50: angulo de visao   //proporÃ§Ã£o da tela   //campo de visÃ£o - mais perto e mais longe
-	projection = mat4.perspective([], -50, canvas.width/canvas.height, 0.1, 100);
-	projectionLocation = gl.getUniformLocation(shaderProgram, "projection");
-	gl.uniformMatrix4fv(projectionLocation, false, new Float32Array(projection));
-	
-	controiCubao();
-	
-	draw();
-	
-	window.addEventListener("onkeydown", teclaPresionada)
-	window.addEventListener("onkeyup", teclaSolta)
-}
+	var cores = controiCoresCubo(); //SEIS CORES DO CUBIBNHO
 
-function controiCubao()
-{
-	var tamanhoCubo = ((document.getElementById("canvas").width / 100) * 80) / 1000; //TAMANHO DAS FACES DO CUBO
-	var tamanhoCubao = tamanhoCubo * 2;
-	var espacamento = 0.03;
-	var posicaoInicialCubo = [0, 0, 0]; //PONTO SUPERIOR ESQUERDO DO NOVO CUBO
-	var coresCubo = controiCoresCubo(); //SEIS CORES DO CUBIBNHO
-	var eixoRotacao = [[0, 1, 0], [1, 0, 0]]; //OS DOIS EIXOS DE ROTACAO DO CUBO
-	var velocidade = 0.5; //velicidade da rotacao
-	data = new Array();
-	
-	//CONTROI OS SEIS CUBOS DO CENTRO
-	
-	//FRENTE
-	data[0] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade); //parametro camada = quadrante que o cubo esta
-	
-	//FUNDO
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[2] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
-	
-	//DIREITA
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	data[1] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	//ESQUERDA
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	data[3] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	//CIMA
-	posicaoInicialCubo[0] = (espacamento);
-	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	data[4] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	//BAIXO
-	posicaoInicialCubo[0] = (espacamento);
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	data[5] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//CONTROI OS 12 CUBOS DOS CANTOS DUPLOS
-	posicaoInicialCubo = [0, 0, 0]; //LIMPA PONTOS
-	
-	//DIREITA DA FRENTE
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	data[6] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//ESQUERDA DA FRENTE
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	data[7] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//CIMA DA FRENTE
-	posicaoInicialCubo[0] = (espacamento);
-	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
-	data[8] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//BAIXO DA FRENTE
-	posicaoInicialCubo[0] = (espacamento);
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	data[9] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	posicaoInicialCubo = [0, 0, 0]; //LIMPA PONTOS
-	
-	//DIREITA DA TRAS
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[10] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
-	
-	
-	//ESQUERDA DA TRAS
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[11] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
-	
-	
-	//CIMA DA TRAS
-	posicaoInicialCubo[0] = (espacamento);
-	posicaoInicialCubo[1] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[12] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
-	
-	
-	//BAIXO DA TRAS
-	posicaoInicialCubo[0] = (espacamento);
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[13] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
-	
-	
-	//BAIXO DA DIREITA
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	data[14] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//CIMA DA DIREITA
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	data[15] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//BAIXO DA ESQUERDA
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	data[16] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//CIMA DA ESQUERDA
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubo + espacamento;
-	data[17] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	//CONTRÓI OS 8 CUBOS COM CANTOS TRIPLHOS
-	
-	posicaoInicialCubo = [0, 0, 0]; //LIMPA PONTOS
-	
-	//DIREITA SUPERIOR DA FRENTE
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
-	data[18] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//ESQUERDA SUPERIOR DA FRENTE
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
-	data[19] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//DIREITA INFERIOR DA FRENTE
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	data[20] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[5], coresCubo[0], coresCubo[2], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	
-	//ESQUERDA INFERIOR DA FRENTE
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	data[21] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[3], coresCubo[0], coresCubo[5], coresCubo[5], coresCubo[5]], tamanhoCubo, velocidade);
-	
-	//DIREITA SUPERIOR DA TRAS
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[22] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
-	
-	
-	//ESQUERDA SUPERIOR DA TRAS
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[1] = (tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[23] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
-	
-	
-	//DIREITA INFERIOR DA TRAS
-	posicaoInicialCubo[0] = tamanhoCubo + espacamento;
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[24] = cubo(posicaoInicialCubo, [coresCubo[4], coresCubo[5], coresCubo[5], coresCubo[2], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
-	
-	
-	//ESQUERDA INFERIOR DA TRAS
-	posicaoInicialCubo[0] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[1] = -(tamanhoCubo + espacamento);
-	posicaoInicialCubo[2] = tamanhoCubao + espacamento;
-	data[25] = cubo(posicaoInicialCubo, [coresCubo[5], coresCubo[3], coresCubo[5], coresCubo[5], coresCubo[5], coresCubo[1]], tamanhoCubo, velocidade);
+	cubos[0] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 5, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[1] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 5, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+
+	cubos[2] = controiCubao([cores[1], cores[1], cores[1], cores[1], cores[1], cores[1], cores[1]], 7, .7, [7 + (.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	cubos[3] = controiCubao([cores[2], cores[2], cores[2], cores[2], cores[2], cores[2], cores[2]], 7, .7, [7 + (.7*3)/2.5, -(.7*3)/2.5, (.7*3)/2.5], 3);
+
+	cubos[4] = controiCubao([cores[5], cores[5], cores[5], cores[5], cores[5], cores[5], cores[5]], 7, .7, [2 + 7 + (.7*2)/2.5, 1 -(.7*2)/2.5, (.7*2)/2.5], 2);
+	cubos[5] = controiCubao([cores[4], cores[4], cores[4], cores[4], cores[4], cores[4], cores[4]], 7, .7, [2 + 7 + (.7*1)/2.5, 1 -(.7*1)/2.5, (.7*1)/2.5], 1);
+
+	/*
+	cubos[1] = controiCubao(cores, 3, .7, [-2, 1, 5], 3);
+	cubos[2] = controiCubao(cores, 2, .3, [-2, -1, 5], 3);
+	cubos[3] = controiCubao(cores, 5, .4, [0, 0, 5], 3);
+	cubos[4] = controiCubao(cores, 2, .2, [0, 0, 5], 3);
+	cubos[5] = controiCubao(cores, 1, .3, [0, 0, 0], 3);
+	cubos[6] = controiCubao(cores, 3, .5, [0, 0, 0], 3);
+	cubos[7] = controiCubao(cores, 5, .8, [0, 0, 0], 3);
+	cubos[8] = controiCubao(cores, 2, .34, [0, 0, 0], 3);
+	*/
+
+	/*
+	for (var i = 0; i < quantidade; i++)
+	{
+		cubos[i] = controiCubao(5, 1, [0, 0, 0]);
+	}
+	*/
 }
 
 function controiCoresCubo()
@@ -365,17 +261,17 @@ function controiCoresCubo()
 		//AZUL
 		[0, 0, 1, 1],
 		
-		//VERDE
-		[0, 1, 0, 1],
+		//VERDEMARROMZADO
+		[.5, .9, .2, 1],
 		
 		//AMARELO
-		[1, 0, 1, 1],
+		[1, .9, 0, 1],
 		
-		//AZUL ESTRANHO
-		[0, 1, 1, 1],
+		//cinza claro
+		[.8, .8, .8, 1],
 		
-		//PRETO
-		[0, 0, 0, 1],
+		//cinza
+		[.6, .6, .6, 1],
 	];
 	
 	return cores;
@@ -467,25 +363,104 @@ function teclaSolta(e)
 	}
 }
 
-function rotacoes(cubo)
+function rotaciona(cuborotacionar)
 {
-	//percorre todos os cubinhos do cubo
-	for (var i = 0; i < cubo.length; i++)
+	var direcao = 1;
+	var eixo = [0, 0, 0];
+	var rotacionar = false;
+
+	if (teclas[CIMA] == true)
 	{
-		//FAZ AS ROTACOES
-		data[i].model = mat4.rotate([], data[i].model, (data[i].velocidade * Math.PI) / 180, [1, 0, 0]); //rotaciona o cubo em X
-		data[i].model = mat4.rotate([], data[i].model, (data[i].velocidade * Math.PI) / 180, [0, 1, 0]); //rotaciona o cubo em Y
+		direcao = 1;
+		eixo[0] = 1;
+		rotacionar = true;
+	}
+
+	if (teclas[ESQUERDA] == true)
+	{
+		direcao = -1;
+		eixo[1] = 1;
+		rotacionar = true;
+	}
+
+	if (teclas[DIREITA] == true)
+	{
+		direcao = 1;
+		eixo[1] = 1;
+		rotacionar = true;
+	}
+
+	if (teclas[BAIXO] == true)
+	{
+		direcao = -1;
+		eixo[0] = 1;
+		rotacionar = true;
+	}
+
+	for (var x = 0; rotacionar && x < cuborotacionar.matriz.length; x++)
+	{
+		for (var y = 0; y < cuborotacionar.matriz[x].length; y++)
+		{
+			for (var z = 0; z < cuborotacionar.matriz[x][y].length; z++)
+			{
+				if (z == 1 && x == 1 && y == 1)
+					continue;
+
+				if (teclas[ESQUERDA] || teclas[DIREITA])
+					cuborotacionar.matriz[x][y][z].model = mat4.rotate([], cuborotacionar.matriz[x][y][z].model, ((cuborotacionar.matriz[x][y][z].velocidade * direcao) * Math.PI) / 180, [0, 1, 0]);
+				if (teclas[CIMA] || teclas[BAIXO])
+					cuborotacionar.matriz[x][y][z].model = mat4.rotate([], cuborotacionar.matriz[x][y][z].model, ((cuborotacionar.matriz[x][y][z].velocidade * direcao) * Math.PI) / 180, [1, 0, 0]);
+			}
+		}
 	}
 }
 
-function movimentos(cubo)
+function movimenta(cubomovimentar)
 {
-	//percorre todos os cubinhos do cubo
-	for (var i = 0; i < cubo.length; i++)
+	var direita = 0;
+	var esquerda = 0;
+	var cima = 0;
+	var baixo = 0;
+	var velocidade = 0;
+	var movimentar = false;
+
+	if (teclas[W] == true)
 	{
-		//FAZ AS TRANSLAÇÕES
-		data[i].model = mat4.rotate([], data[i].model, (data[i].velocidade * Math.PI) / 180, [1, 0, 0]); //rotaciona o cubo em X
-		data[i].model = mat4.rotate([], data[i].model, (data[i].velocidade * Math.PI) / 180, [0, 1, 0]); //rotaciona o cubo em Y
+		cima = 1;
+		movimentar = true;
+	}
+
+	if (teclas[A] == true)
+	{
+		esquerda = 1;
+		movimentar = true;
+	}
+
+	if (teclas[D] == true)
+	{
+		direita = 1;
+		movimentar = true;
+	}
+
+	if (teclas[S] == true)
+	{
+		baixo = 1;
+		movimentar = true;
+	}
+
+	for (var x = 0; movimentar && x < cubomovimentar.matriz.length; x++)
+	{
+		for (var y = 0; y < cubomovimentar.matriz[x].length; y++)
+		{
+			for (var z = 0; z < cubomovimentar.matriz[x][y].length; z++)
+			{
+				if (z == 1 && x == 1 && y == 1)
+					continue;
+
+				velocidade = cubomovimentar.matriz[x][y][z].velocidade/100;
+				cubomovimentar.matriz[x][y][z].model = mat4.translate([], cubomovimentar.matriz[x][y][z].model, [(esquerda*velocidade)-(direita*velocidade), (cima*velocidade)-(baixo*velocidade), 0]);
+			}
+		}
 	}
 }
 
@@ -493,36 +468,48 @@ function draw()
 {
 	if (!camera) 
 		camera = [10, 10, -20];
+
+	gl.clear(gl.COLOR_BUFFER_BIT);
 		
 	//para cada cubo
-	for (var i = 0; i < data.length; i++)
+	for (var quant = 0; quant < cubos.length; quant++)
 	{
-		for (var j = 0; j < data[i].length; j++)
+		cubo = cubos[quant];
+
+		rotaciona(cubo);
+		movimenta(cubo);
+
+		for (var x = 0; x < cubo.matriz.length; x++)
 		{
-			rotacoes(data[i][j]);
-			movimentos(data[i][j]);
-			
-			gl.uniformMatrix4fv(modelLocation, false, new Float32Array(data[i][j].model));
-		
-			//ATRIBUTOS DOS SHADERS
-			positionAttr = gl.getAttribLocation(shaderProgram, "position");
-			positionBuffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, data[i][j].points, gl.STATIC_DRAW);
-			gl.enableVertexAttribArray(positionAttr);
-			gl.vertexAttribPointer(positionAttr, 3, gl.FLOAT, false, 0, 0);
-			
-			colorAttr = gl.getAttribLocation(shaderProgram, "color");
-			colorBuffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, data[i][j].colors, gl.STATIC_DRAW);
-			gl.enableVertexAttribArray(colorAttr);
-			gl.vertexAttribPointer(colorAttr, 4, gl.FLOAT, false, 0, 0);
+			for (var y = 0; y < cubo.matriz[x].length; y++)
+			{
+				for (var z = 0; z < cubo.matriz[x][y].length; z++)
+				{
+					if (z == 1 && x == 1 && y == 1)
+						continue;
+
+    				gl.uniformMatrix4fv(modelLocation, false, new Float32Array(cubo.matriz[x][y][z].model));
+				
+					//ATRIBUTOS DOS SHADERS
+					positionAttr = gl.getAttribLocation(shaderProgram, "position");
+					positionBuffer = gl.createBuffer();
+					gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+					gl.bufferData(gl.ARRAY_BUFFER, cubo.matriz[x][y][z].points, gl.STATIC_DRAW);
+					gl.enableVertexAttribArray(positionAttr);
+					gl.vertexAttribPointer(positionAttr, 3, gl.FLOAT, false, 0, 0);
 					
-			gl.drawArrays(gl.TRIANGLES, 0, data[i][j].points.length/3);
+					colorAttr = gl.getAttribLocation(shaderProgram, "color");
+					colorBuffer = gl.createBuffer();
+					gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+					gl.bufferData(gl.ARRAY_BUFFER, cubo.matriz[x][y][z].colors, gl.STATIC_DRAW);
+					gl.enableVertexAttribArray(colorAttr);
+					gl.vertexAttribPointer(colorAttr, 4, gl.FLOAT, false, 0, 0);
+							
+					gl.drawArrays(gl.TRIANGLES, 0, cubo.matriz[x][y][z].points.length/3);
+				}
+			}
 		}
 	}
-	
 	
 	requestAnimationFrame(draw);
 }
