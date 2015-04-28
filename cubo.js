@@ -222,47 +222,102 @@ function controiCubao(coresCubo, velocidade, tamanho, posicao, quantidade)
 function controiCena(quantidade)
 {
 	var cores = controiCoresCubo(); //SEIS CORES DO CUBIBNHO
+	var raio = 0;
+	var tamanho = 6;
+	var tamanhocubos = .7;
+	var velocidade = 2;
+	var VERMELHO = 0, VERDE = 1, AZUL = 2, AMARELO = 3, CINZA = 4, CINZA_CLARO = 5, MARROM = 6, AZUL_CLARO = 7, VERDE_BOSTA = 8, MARROM_ESCURO = 9, MARROM_LARANJA = 10, PRETO = 11, CINZA_ESCURO = 12, VINHO = 13, MARROM_CLARO = 14;
 
 	//SOL
-	cubos[0] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[1] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	cubos[0] = controiCubao([cores[AMARELO], cores[AMARELO], cores[AMARELO], cores[AMARELO], cores[AMARELO], cores[AMARELO], cores[AMARELO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	tamanho = 4;
+	cubos[1] = controiCubao([cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
 
-	/*	
 	//MERCURIO
-	cubos[2] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[3] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	tamanho = 2;
+	raio += 3;
+	velocidade = 4;
+	cubos[2] = controiCubao([cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	tamanho = 1;
+	cubos[3] = controiCubao([cores[CINZA], cores[CINZA], cores[CINZA], cores[CINZA], cores[CINZA], cores[CINZA], cores[CINZA]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
 
 	//VENUS
-	cubos[4] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[5] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
-	*/
+	tamanho = 3;
+	raio += 2;
+	valocidade = 3;
+	cubos[4] = controiCubao([cores[MARROM_LARANJA], cores[MARROM_LARANJA], cores[MARROM_LARANJA], cores[MARROM_LARANJA], cores[MARROM_LARANJA], cores[MARROM_LARANJA], cores[MARROM_LARANJA]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	tamanho = 2;
+	cubos[5] = controiCubao([cores[MARROM], cores[MARROM], cores[MARROM], cores[MARROM], cores[MARROM], cores[MARROM], cores[MARROM]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	
+	
 	//TERRA
-	cubos[2] = controiCubao([cores[1], cores[1], cores[1], cores[1], cores[1], cores[1], cores[1]], 7, .7, [7 + (.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
-	cubos[3] = controiCubao([cores[2], cores[2], cores[2], cores[2], cores[2], cores[2], cores[2]], 7, .7, [7 + (.7*3)/2.5, -(.7*3)/2.5, (.7*3)/2.5], 3);
+	tamanho = 4;
+	raio += 4;
+	velocidade = 4;
+	cubos[6] = controiCubao([cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	tamanho = 3;
+	cubos[7] = controiCubao([cores[VERDE], cores[VERDE], cores[MARROM], cores[VERDE_BOSTA], cores[MARROM], cores[VERDE], cores[VERDE_BOSTA]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	
 	//LUA
-	cubos[4] = controiCubao([cores[5], cores[5], cores[5], cores[5], cores[5], cores[5], cores[5]], 7, .7, [2 + 7 + (.7*2)/2.5, 1 -(.7*2)/2.5, (.7*2)/2.5], 2);
-	cubos[5] = controiCubao([cores[4], cores[4], cores[4], cores[4], cores[4], cores[4], cores[4]], 7, .7, [2 + 7 + (.7*1)/2.5, 1 -(.7*1)/2.5, (.7*1)/2.5], 1);
-	/*
+	tamanho = 2;
+	raio += 2;
+	cubos[8] = controiCubao([cores[CINZA], cores[CINZA], cores[CINZA], cores[CINZA], cores[CINZA], cores[CINZA], cores[CINZA]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	tamanho = 1;
+	cubos[9] = controiCubao([cores[CINZA_CLARO], cores[CINZA_CLARO], cores[CINZA_CLARO], cores[CINZA_CLARO], cores[CINZA_CLARO], cores[CINZA_CLARO], cores[CINZA_CLARO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	
 	//MARTE
-	cubos[10] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[11] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	tamanho = 4;
+	raio += 4;
+	velocidade = 2;
+	cubos[10] = controiCubao([cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO], cores[VERMELHO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	tamanho = 3;
+	cubos[11] = controiCubao([cores[VINHO], cores[VINHO], cores[VINHO], cores[VINHO], cores[VINHO], cores[VINHO], cores[VINHO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
 
+	
 	//JUPITER
-	cubos[12] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[13] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	tamanho = 5;
+	raio += 5;
+	velocidade = 1;
+	cubos[12] = controiCubao([cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	tamanho = 3;
+	cubos[13] = controiCubao([cores[MARROM_LARANJA], cores[MARROM_LARANJA], cores[MARROM], cores[MARROM_LARANJA], cores[MARROM_LARANJA], cores[MARROM], cores[MARROM_LARANJA]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
 
+	
 	//SATURNO
-	cubos[14] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[15] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	raio += 5;
+	tamanho = 4;
+	velocidade = 2;
+	cubos[14] = controiCubao([cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA], cores[VERDE_BOSTA]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	tamanho = 1;
+	
+	//anéis
+	raio -= 2;
+	cubos[15] = controiCubao([cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	raio += 4;
+	cubos[16] = controiCubao([cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+
+	cubos[17] = controiCubao([cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO]], velocidade, tamanhocubos, [raio - 2 + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, 2 + (tamanhocubos*tamanho)/2.5], tamanho);
+	cubos[18] = controiCubao([cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO], cores[MARROM_CLARO]], velocidade, tamanhocubos, [raio - 2 + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, ((tamanhocubos*tamanho)/2.5) - 2], tamanho);
 
 	//URANO
-	cubos[16] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[17] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	raio += 4;
+	tamanho = 4;
+	velocidade = 1.5;
+	cubos[19] = controiCubao([cores[AZUL_CLARO], cores[AZUL_CLARO], cores[AZUL_CLARO], cores[AZUL_CLARO], cores[AZUL_CLARO], cores[AZUL_CLARO], cores[AZUL_CLARO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
 
+	
 	//NETURNO
-	cubos[18] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[19] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
-	*/
+	raio += 3;
+	tamanho = 3;
+	velocidade = 2;
+	cubos[20] = controiCubao([cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL], cores[AZUL]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+
+	raio += 2;
+	tamanho = 1;
+	velocidade = 1;
+	cubos[21] = controiCubao([cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO], cores[CINZA_ESCURO]], velocidade, tamanhocubos, [raio + (tamanhocubos*tamanho)/2.5, -(tamanhocubos*tamanho)/2.5, (tamanhocubos*tamanho)/2.5], tamanho);
+	
+
 	for (var i = 0; i < cubos.length; i++)
 	{
 		cubo = cubos[i];
@@ -275,7 +330,7 @@ function controiCena(quantidade)
 					if (z == 1 && x == 1 && y == 1)
 						continue;
 
-					cubo.matriz[x][y][z].model = mat4.translate([], cubo.matriz[x][y][z].model, [-20, -20, 100]);
+					cubo.matriz[x][y][z].model = mat4.translate([], cubo.matriz[x][y][z].model, [-33, -30, 150]);
 				}
 			}
 		}
@@ -289,20 +344,47 @@ function controiCoresCubo()
 		//VERMELHO
 		[1, 0, 0, 1],
 		
+		//VERDE
+		[0, 1, 0, 1],
+		
 		//AZUL
 		[0, 0, 1, 1],
 		
-		//VERDEMARROMZADO
-		[.5, .9, .2, 1],
-		
 		//AMARELO
-		[1, .9, 0, 1],
-		
-		//cinza claro
-		[.8, .8, .8, 1],
+		[1, 1, 0, 1],
 		
 		//cinza
 		[.6, .6, .6, 1],
+
+		//cinza claro
+		[.8, .8, .8, 1],
+		
+		//MARROM
+		[1/255*153, 1/255*76, 0, 1],
+
+		//AZUL CLARO
+		[1/255*102, 1, 1, 1],
+
+		//VERDE BOSTA
+		[1/255*204, 1/255*204, 0, 1],
+
+		//MARROM ESCURO
+		[1/255*102, 1/255*51, 0, 1],
+
+		//MARROM LARANJA
+		[1/255*189, 1/255*97, 1/255*26, 1],
+
+		//PRETO
+		[0, 0, 0, 1],
+
+		//CINZA_ESCURO
+		[.4, .4, .4, 1],
+
+		//VINHO
+		[1/255*153, 0, 0, 1],
+
+		//MARROM CLARO
+		[1, 1/255*178, 1/255*102, 1],
 	];
 	
 	return cores;
@@ -440,7 +522,7 @@ function rotaciona(cuborotacionar)
 				if (teclas[ESQUERDA] || teclas[DIREITA])
 					cuborotacionar.matriz[x][y][z].model = mat4.rotate([], cuborotacionar.matriz[x][y][z].model, ((cuborotacionar.matriz[x][y][z].velocidade * direcao) * Math.PI) / 180, [0, 1, 0]);
 				if (teclas[CIMA] || teclas[BAIXO])
-					cuborotacionar.matriz[x][y][z].model = mat4.rotate([], cuborotacionar.matriz[x][y][z].model, ((cuborotacionar.matriz[x][y][z].velocidade * direcao) * Math.PI) / 180, [1, 0, 0]);
+					cuborotacionar.matriz[x][y][z].model = mat4.rotate([], cuborotacionar.matriz[x][y][z].model, ((1 * direcao) * Math.PI) / 180, [1, 0, 0]);
 			}
 		}
 	}
