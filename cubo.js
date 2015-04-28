@@ -105,14 +105,11 @@ function main()
 	projectionLocation = gl.getUniformLocation(shaderProgram, "projection");
 	gl.uniformMatrix4fv(projectionLocation, false, new Float32Array(projection));
 	
-	face = 0; //face a mostra do cubo: 0 - frente 1 - direita 2 - tras 3 - esquerda 4 - cima 5 - baixo
-	
 	controiCubao();
 	
 	draw();
 	
 	window.addEventListener("click", click);
-	window.addEventListener("keypress", tecla);
 }
 
 /**
@@ -120,8 +117,6 @@ function main()
  */
 function controiCubinho(posicaoInicial, cores, tamanho)
 {
-	//var posicaoInicial = [0, 0, 0];
-
 	var pontos = 
 	[		
 		[posicaoInicial[0], posicaoInicial[1], posicaoInicial[2]], //superior esquerdo
@@ -171,8 +166,10 @@ function controiCubinho(posicaoInicial, cores, tamanho)
 		"points": new Float32Array(flatten(faces)),
 		"colors": new Float32Array(flatten(colors)),
 		"model": mat4.create(),
-		"eixoRotacaoLinha": [0, 1, 0],
+		"eixoLinhaIndice": 0,
+		"eixoColunaIndice": 0,
 		"eixoRotacaoColuna": [1, 0, 0],
+		"eixoRotacaoLinha": [0, 1, 0],
 	};
 }
 
@@ -258,91 +255,6 @@ function controiCoresCubo()
 	return cores;
 }
 
-function tecla(e)
-{
-	//0 - frente 1 - direita 2 - tras 3 - esquerda 4 - cima 5 - baixo
-	
-	if (e.keyCode == 37) //seta esquerda
-	{
-		//se esta mostrando a face de cima ou de baixo
-		if (face == 4 || face == 5)
-		{
-			face = 3;
-		}
-		//se esta mostrando qualquer outra
-		else 
-		{
-			face--;
-			
-			if (face == -1)
-			{
-				face = 3;
-			}
-		}
-	}
-	else if (e.keyCode == 38) //seta cima
-	{
-		//se nao esta nem em cima nem em baixo
-		if (face != 4 && face != 5)
-		{
-			face = 4;
-		}
-		else
-		{
-			if (face == 4)
-			{
-				face = 2;
-			}
-			else
-			{
-				face = 0;
-			}
-		}
-	}
-	else if (e.keyCode == 39) //se direita
-	{
-		//se esta mostrando a face de cima ou de baixo
-		if (face == 4 || face == 5)
-		{
-			face = 1;
-		}
-		//se esta mostrando qualquer outra
-		else 
-		{
-			face++;
-			
-			if (face == 4)
-			{
-				face = 0;
-			}
-		}
-	}
-	else if (e.keyCode == 40) //seta baixo
-	{
-		//se nao esta nem em cima nem em baixo
-		if (face != 4 && face != 5)
-		{
-			face = 4;
-		}
-		else
-		{
-			if (face == 4)
-			{
-				face = 0;
-			}
-			else
-			{
-				face = 2;
-			}
-		}
-	}
-}
-
-function gira(lado)
-{
-	
-}
-
 /**
  *Funcao click do botão. Calcula o quadrante clicado. 
  */
@@ -407,6 +319,9 @@ function rotacoes()
 	}
 }
 
+eixocoluna = [[1, 0,  0], [0, 0, 1], [-1, 0,  0], [0, 0, -1]];
+eixolinha = [[0, 1,  0], [0, 0, -1], [0, -1,  0], [0, 0, 1]];
+
 /**
  *Funcao que rotacioona a matriz formada pelos cubinhos da linha parametrizada. 
  */
@@ -418,9 +333,13 @@ function rotacionaLinha(linhaRotacionar, sentidoRotacao)
 	for (var i = 0; i < 3; i++)
 		matrizRotacionar = matrizRotacionar.concat(cubo.matriz[i][linhaRotacionar]); //pega a matriz de 3 posicoes de todas as colunas na linha
 	
+	/* NAO É MATRIZ TRANSPOSTA QUE USA */
 	//pega a matriz transposta
 	matrizRotacionar = mat3.transpose([], matrizRotacionar);
-	
+
+	for (var i = 0; sentidoRotacao == -1 && i < 2; i++)
+		matrizRotacionar = mat3.transpose([], matrizRotacionar);
+
 	for (var i = 0; i < matrizRotacionar.length; i++)
 	{
 		//se é o cubo central, que não existe, passa para o proximo
@@ -430,11 +349,7 @@ function rotacionaLinha(linhaRotacionar, sentidoRotacao)
 		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoLinha);//matrizRotacionar[i].eixoRotacaoLinha);
 
 		//se o eixo de rotação era o X para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
-		if (matrizRotacionar[i].eixoRotacaoColuna[0] == 1)
-			matrizRotacionar[i].eixoRotacaoColuna = [0, 0, -1];
-		//senao, volta pro padrão
-		else
-			matrizRotacionar[i].eixoRotacaoColuna = [1, 0, 0];
+		matrizRotacionar[i].eixoRotacaoColuna = eixocoluna[++matrizRotacionar[i].eixoColunaIndice%eixocoluna.length];
 	}
 	
 	cubo.matriz[0][linhaRotacionar] = matrizRotacionar.slice(0, 3);
@@ -455,21 +370,20 @@ function rotacionaColuna(colunaRotacionar, sentidoRotacao)
 	
 	//pega a matriz transposta
 	matrizRotacionar = mat3.transpose([], matrizRotacionar);
-	
+
+	for (var i = 0; sentidoRotacao == 1 && i < 2; i++)
+		matrizRotacionar = mat3.transpose([], matrizRotacionar);
+
 	for (var i = 0; i < matrizRotacionar.length; i++)
 	{
 		//se é o cubo central, que não existe, passa para o proximo
 		if (colunaRotacionar == 1 && i == 4)
 			continue;
 		
-		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((90 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoColuna);//matrizRotacionar[i].eixoRotacaoColuna);
+		matrizRotacionar[i].model = mat4.rotate([], matrizRotacionar[i].model, ((45 * sentidoRotacao) * Math.PI) / 180, matrizRotacionar[i].eixoRotacaoColuna);//matrizRotacionar[i].eixoRotacaoColuna);
 
-		//se o eixo de rotação era o Y para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
-		if (matrizRotacionar[i].eixoRotacaoLinha[1] == 1)
-			matrizRotacionar[i].eixoRotacaoLinha = [0, 0, -1];
-		//senao, volta pro padrão
-		else
-			matrizRotacionar[i].eixoRotacaoLinha = [0, 1, 0];
+		//se o eixo de rotação era o X para rotacionar coluna, agora vira o Z, porque o que era coluna vira linha
+		matrizRotacionar[i].eixoRotacaoLinha = eixolinha[++matrizRotacionar[i].eixoLinhaIndice%eixolinha.length];
 	}
 	
 	cubo.matriz[colunaRotacionar][0] = matrizRotacionar.slice(0, 3);
