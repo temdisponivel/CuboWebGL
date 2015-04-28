@@ -224,7 +224,7 @@ function controiCena(quantidade)
 	var cores = controiCoresCubo(); //SEIS CORES DO CUBIBNHO
 	var raio = 0;
 	var tamanho = 6;
-	var tamanhocubos = .7;
+	var tamanhocubos = .5;
 	var velocidade = 2;
 	var VERMELHO = 0, VERDE = 1, AZUL = 2, AMARELO = 3, CINZA = 4, CINZA_CLARO = 5, MARROM = 6, AZUL_CLARO = 7, VERDE_BOSTA = 8, MARROM_ESCURO = 9, MARROM_LARANJA = 10, PRETO = 11, CINZA_ESCURO = 12, VINHO = 13, MARROM_CLARO = 14;
 
