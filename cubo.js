@@ -111,7 +111,7 @@ function main()
 	gl.uniformMatrix4fv(viewLocation, false, new Float32Array(view));
 	
 	//50: angulo de visao   //proporÃ§Ã£o da tela   //campo de visÃ£o - mais perto e mais longe
-	projection = mat4.perspective([], -50, canvas.width/canvas.height, 0.1, 100);
+	projection = mat4.perspective([], -50, canvas.width/canvas.height, 0.1, -1000);
 	projectionLocation = gl.getUniformLocation(shaderProgram, "projection");
 	gl.uniformMatrix4fv(projectionLocation, false, new Float32Array(projection));
 	
@@ -223,32 +223,63 @@ function controiCena(quantidade)
 {
 	var cores = controiCoresCubo(); //SEIS CORES DO CUBIBNHO
 
-	cubos[0] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 5, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
-	cubos[1] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 5, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	//SOL
+	cubos[0] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[1] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
 
+	/*	
+	//MERCURIO
+	cubos[2] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[3] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+
+	//VENUS
+	cubos[4] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[5] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+	*/
+	//TERRA
 	cubos[2] = controiCubao([cores[1], cores[1], cores[1], cores[1], cores[1], cores[1], cores[1]], 7, .7, [7 + (.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
 	cubos[3] = controiCubao([cores[2], cores[2], cores[2], cores[2], cores[2], cores[2], cores[2]], 7, .7, [7 + (.7*3)/2.5, -(.7*3)/2.5, (.7*3)/2.5], 3);
-
+	//LUA
 	cubos[4] = controiCubao([cores[5], cores[5], cores[5], cores[5], cores[5], cores[5], cores[5]], 7, .7, [2 + 7 + (.7*2)/2.5, 1 -(.7*2)/2.5, (.7*2)/2.5], 2);
 	cubos[5] = controiCubao([cores[4], cores[4], cores[4], cores[4], cores[4], cores[4], cores[4]], 7, .7, [2 + 7 + (.7*1)/2.5, 1 -(.7*1)/2.5, (.7*1)/2.5], 1);
-
 	/*
-	cubos[1] = controiCubao(cores, 3, .7, [-2, 1, 5], 3);
-	cubos[2] = controiCubao(cores, 2, .3, [-2, -1, 5], 3);
-	cubos[3] = controiCubao(cores, 5, .4, [0, 0, 5], 3);
-	cubos[4] = controiCubao(cores, 2, .2, [0, 0, 5], 3);
-	cubos[5] = controiCubao(cores, 1, .3, [0, 0, 0], 3);
-	cubos[6] = controiCubao(cores, 3, .5, [0, 0, 0], 3);
-	cubos[7] = controiCubao(cores, 5, .8, [0, 0, 0], 3);
-	cubos[8] = controiCubao(cores, 2, .34, [0, 0, 0], 3);
+	//MARTE
+	cubos[10] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[11] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+
+	//JUPITER
+	cubos[12] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[13] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+
+	//SATURNO
+	cubos[14] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[15] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+
+	//URANO
+	cubos[16] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[17] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
+
+	//NETURNO
+	cubos[18] = controiCubao([cores[3], cores[3], cores[3], cores[3], cores[3], cores[3], cores[3]], 2, .7, [(.7*6)/2.5, -(.7*6)/2.5, (.7*6)/2.5], 6);
+	cubos[19] = controiCubao([cores[0], cores[0], cores[0], cores[0], cores[0], cores[0], cores[0]], 2, .7, [(.7*4)/2.5, -(.7*4)/2.5, (.7*4)/2.5], 4);
 	*/
-
-	/*
-	for (var i = 0; i < quantidade; i++)
+	for (var i = 0; i < cubos.length; i++)
 	{
-		cubos[i] = controiCubao(5, 1, [0, 0, 0]);
+		cubo = cubos[i];
+		for (var x = 0; x < cubo.matriz.length; x++)
+		{
+			for (var y = 0; y < cubo.matriz[x].length; y++)
+			{
+				for (var z = 0; z < cubo.matriz[x][y].length; z++)
+				{
+					if (z == 1 && x == 1 && y == 1)
+						continue;
+
+					cubo.matriz[x][y][z].model = mat4.translate([], cubo.matriz[x][y][z].model, [-20, -20, 100]);
+				}
+			}
+		}
 	}
-	*/
 }
 
 function controiCoresCubo()
